@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIN 360</title>
+    <!-- Icon Library (Boxicons) -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #9C27B0;
+            --auth-bg-color: #ff6600;
+            --secondary-color: #ffffff;
+            --text-color: #4a4a4a;
+            --light-gray: #f4f6f9;
+            --light-pink-bg: #fdf2f5;
+            --yellow-color: #ffc107;
+            --error-color: #d32f2f;
+            --success-color: #4CAF50;
+            --progress-color: #2196F3;
+            --ripple-color: rgba(255, 255, 255, 0.4);
+            --status-pending: #ffc107;
+            --status-accepted: #4CAF50;
+            --status-rejected: #d32f2f;
+            --wingo-header-bg: #ef4e4e;
+            --wingo-green: #4caf50;
+            --wingo-violet: #9c27b0;
+            --wingo-red: #f44336;
+            --wingo-orange: #ff9800;
+            --wingo-blue: #2196f3;
+        }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background-color: var(--light-gray); overflow-x: hidden; }
+        .page { display: none; min-height: 100vh; width: 100%; position: absolute; top: 0; left: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.4s ease-in-out; visibility: hidden; flex-direction: column; align-items: center; }
+        .page.active { display: flex; opacity: 1; visibility: visible; }
+        .auth-page { background-image: linear-gradient(135deg, #f7797d, #FBD786, #C6FFDD); justify-content: center; }
+        .auth-container { width: 100%; max-width: 400px; padding: 30px; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); }
+        .auth-logo { font-size: 52px; font-weight: bold; color: var(--secondary-color); margin-bottom: 40px; text-shadow: 2px 2px 8px rgba(0,0,0,0.2); }
+        .auth-logo .win { color: var(--yellow-color); }
+        .blue-360 { color: var(--progress-color); }
+        .input-group { position: relative; width: 100%; margin-bottom: 20px; }
+        .input-group input { width: 100%; padding: 15px 15px 15px 50px; border: 1px solid rgba(255,255,255,0.4); border-radius: 30px; box-sizing: border-box; font-size: 16px; background-color: rgba(255,255,255,0.8); color: #333; transition: all 0.3s ease; }
+        .input-group input::placeholder { color: #888; }
+        .input-group input:focus { background-color: #fff; border-color: var(--primary-color); box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); outline: none; }
+        .input-group .icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #666; }
+        .input-group .country-flag { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 24px; }
+        .input-group .country-code { position: absolute; left: 50px; top: 50%; transform: translateY(-50%); color: #000; font-weight: bold; }
+        .input-group input[type="tel"] { padding-left: 95px; }
+        .auth-btn { width: 100%; padding: 15px; border: none; border-radius: 30px; background-color: var(--primary-color); color: var(--secondary-color); font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 20px; box-sizing: border-box; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), inset 0 -2px 4px rgba(0,0,0,0.2); }
+        .auth-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 -2px 4px rgba(0,0,0,0.2); }
+        .auth-btn:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 -2px 4px rgba(0,0,0,0.2); }
+        .link-text { color: var(--secondary-color); margin-top: 10px; font-weight: 500; }
+        .link-text a { color: #fff; font-weight: bold; text-decoration: none; border-bottom: 1px solid #fff; padding-bottom: 2px; }
+        #home-page, #wallet-page, #withdraw-page, #profile-page, #my-ticket-page, #deposit-page, #wingo-page { justify-content: flex-start; background-color: var(--light-gray); }
+        .header { background-color: var(--primary-color); color: var(--secondary-color); padding: 15px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; position: sticky; top: 0; z-index: 1000; }
+        .header .bx { font-size: 32px; cursor: pointer; border-radius: 50%; padding: 5px; }
+        .header .header-title { margin: 0; font-size: 20px; font-weight: bold; flex-grow: 1; text-align: left; padding-left: 15px; }
+        .header .logo { font-size: 24px; font-weight: bold; flex-grow: 1; text-align: center;}
+        .header .logo .win { color: var(--yellow-color); }
+        .header .icons, .header .back-icon { display: flex; align-items: center; min-width: 50px; justify-content: flex-end; }
+        .header .back-icon { justify-content: flex-start; }
+        .header .icons i { font-size: 28px; margin-left: 15px; cursor: pointer; border-radius: 50%; padding: 5px;}
+        .tabs { background-color: var(--secondary-color); display: flex; justify-content: space-around; box-shadow: 0 2px 4px rgba(0,0,0,.1); width: 100%; box-sizing: border-box; }
+        .tab-button { background: 0 0; border: none; padding: 15px 10px; font-size: 16px; font-weight: 700; color: var(--text-color); cursor: pointer; position: relative; flex-grow: 1; text-transform: uppercase; transition: all 0.2s ease; }
+        .tab-button.active { color: var(--primary-color); }
+        .tab-button.active::after { content:''; position:absolute; bottom:0; left:0; width:100%; height:3px; background-color:var(--primary-color) }
+        .tab-button:hover { background-color: #f0f0f0; }
+        .match-container { padding: 20px 15px; flex-grow: 1; width: 100%; box-sizing: border-box; background-color: #f0f0f0; }
+        .info-text { text-align:center; font-size:18px; color:var(--text-color); padding:50px 20px; }
+        .match-card{background-color:var(--secondary-color);border-radius:10px;margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,.1);overflow:hidden}.card-header{background-color:var(--primary-color);color:var(--secondary-color);padding:8px 15px;font-weight:700;text-align:right}.card-body{padding:15px}.prize-info{display:flex;justify-content:space-between;align-items:center}.prize-pool h4,.entry-fee h4{margin:0;color:#888;font-size:14px;font-weight:400}.prize-pool .amount{font-size:28px;font-weight:700;color:#000}.entry-fee .fee-button{background-color:var(--primary-color);color:var(--secondary-color);border:none;border-radius:20px;padding:10px 25px;font-size:18px;font-weight:700;cursor:pointer; box-shadow: 0 3px 5px rgba(0,0,0,0.2); transition: all 0.2s ease;}.fee-button:hover{transform: translateY(-2px); box-shadow: 0 5px 8px rgba(0,0,0,0.3);}.fee-button:active{transform: translateY(1px);}.progress-bar-container{margin-top:15px}.progress-bar{width:100%;height:8px;background-color:#e0e0e0;border-radius:4px;overflow:hidden}.progress-bar-fill{height:100%;background-color:var(--primary-color);border-radius:4px}.spots-info{display:flex;justify-content:space-between;margin-top:5px;font-size:12px;color:#888}.card-footer{background-color:var(--primary-color);color:var(--secondary-color);padding:10px 15px;display:flex;justify-content:space-between;align-items:center;font-size:16px}.footer-info{display:flex;align-items:center}.footer-info i{font-size:22px;margin-right:8px}.footer-info span{margin-right:15px}.join-check{width:30px;height:30px;background-color:var(--secondary-color);border-radius:50%;display:flex;justify-content:center;align-items:center;color:var(--primary-color);font-size:20px}
+        .sidenav { height: 100%; width: 0; position: fixed; z-index: 1001; top: 0; left: 0; background: linear-gradient(160deg, #0f2027, #203a43, #2c5364); overflow-x: hidden; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5); }
+        .sidenav-header { padding: 30px 25px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .sidenav-header .closebtn { position: absolute; top: 10px; right: 20px; font-size: 36px; color: #95a5a6; text-decoration: none; transition: color 0.3s, transform 0.3s; }
+        .sidenav-header .closebtn:hover { color: #fff; transform: rotate(180deg); }
+        .sidenav-header .profile-pic { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 15px auto; border: 4px solid var(--primary-color); background-image: url(https://i.postimg.cc/FsQz5kMv/images.png); background-size: cover; background-position: center; box-shadow: 0 0 25px rgba(156, 39, 176, 0.7); }
+        .sidenav-header h3 { margin: 0; font-size: 20px; color: #ecf0f1; font-weight: 600; }
+        .sidenav-header p { margin: 8px 0 0; font-size: 14px; color: #bdc3c7; }
+        .sidenav-content { padding: 20px 15px; flex-grow: 1; }
+        .sidenav-content a { padding: 15px 20px; text-decoration: none; font-size: 16px; color: #bdc3c7; display: flex; align-items: center; border-radius: 8px; margin-bottom: 8px; transition: background-color 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s; }
+        .sidenav-content a i { font-size: 22px; margin-right: 20px; width: 25px; text-align: center; color: #95a5a6; transition: color 0.3s; }
+        .sidenav-content a:hover { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; transform: translateX(5px); box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+        .sidenav-content a:hover i { color: #ffffff; }
+        .sidenav-content a.active { background-color: var(--primary-color); color: var(--secondary-color); font-weight: bold; }
+        .sidenav-content a.active i { color: var(--secondary-color); }
+        .sidenav-footer { padding: 20px 25px; text-align: center; color: #7f8c8d; font-size: 12px; margin-top: auto; }
+        #wallet-page .wallet-main-content { background-color: var(--primary-color); color: var(--secondary-color); width: 100%; text-align: center; padding: 25px 20px; box-sizing: border-box; }
+        #wallet-page .wallet-icon { font-size: 50px; margin-bottom: 5px; opacity: 0.9; }
+        #wallet-page .balance-amount { font-size: 32px; font-weight: bold; margin: 0; }
+        #wallet-page .wallet-actions { display: flex; justify-content: space-around; padding: 20px; width: 100%; box-sizing: border-box; background-color: var(--primary-color); }
+        #wallet-page .wallet-btn { background-color: var(--secondary-color); color: var(--text-color); border: none; border-radius: 25px; padding: 12px 20px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; flex-grow: 1; justify-content: center; margin: 0 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.15), inset 0 -2px 3px rgba(0,0,0,0.1); transition: all 0.2s ease;}
+        #wallet-page .wallet-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 10px rgba(0,0,0,0.2), inset 0 -2px 3px rgba(0,0,0,0.1); }
+        #wallet-page .wallet-btn:active { transform: translateY(1px); }
+        #wallet-page .wallet-btn i { font-size: 20px; margin-right: 8px; }
+        #wallet-page .history-container { width: 100%; background-color: #f0f0f0; flex-grow: 1; padding: 0 10px; box-sizing: border-box;}
+        #wallet-page .history-content { display: none; padding-top: 15px;}
+        #wallet-page .history-content.active { display: block; }
+        .history-card { background-color: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .history-card-info { display: flex; flex-direction: column; gap: 4px; }
+        .history-card-info .amount { font-size: 18px; font-weight: bold; color: var(--text-color); }
+        .history-card-info .date { font-size: 12px; color: #888; }
+        .history-card-info .trxId { font-size: 13px; color: #555; word-break: break-all; }
+        .history-card-status { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; color: #fff; text-transform: uppercase; }
+        .history-card-status.pending { background-color: var(--status-pending); }
+        .history-card-status.accepted, .history-card-status.approved, .history-card-status.refunded { background-color: var(--status-accepted); }
+        .history-card-status.rejected { background-color: var(--status-rejected); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .modal-content { background-color: var(--light-gray); width: 90%; max-width: 450px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); overflow: hidden; animation: slide-up 0.3s ease-out; }
+        @keyframes slide-up { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { position: relative; padding: 20px; background-color: var(--secondary-color); border-bottom: 1px solid #e0e0e0; text-align: center; font-size: 18px; font-weight: bold; color: var(--text-color);}
+        .close-btn { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); font-size: 28px; color: #888; cursor: pointer; line-height: 1; padding: 5px; z-index: 10; border-radius: 50%;}
+        .close-btn:hover { color: #333; }
+        .info-box { background-color: #e3f2fd; border: 1px solid #90caf9; color: #1e88e5; padding: 15px; border-radius: 8px; text-align: center; font-size: 14px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 14px; color: #666; margin-bottom: 8px; }
+        .form-group .input-wrapper { display: flex; align-items: center; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+        .wallet-number-display { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .wallet-number-display span { font-size: 18px; font-weight: bold; color: var(--primary-color); }
+        .wallet-number-display i { font-size: 22px; color: #666; cursor: pointer; border-radius: 50%;}
+        .amount-presets { display: flex; justify-content: space-between; gap: 5px; margin-top: 10px; }
+        .amount-presets button { flex-grow: 1; padding: 8px; font-size: 14px; border: 1px solid #ccc; background-color: #fff; border-radius: 5px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 2px rgba(0,0,0,0.1);}
+        .amount-presets button:hover { background-color: var(--primary-color); color: var(--secondary-color); transform: translateY(-2px); box-shadow: 0 4px 5px rgba(0,0,0,0.15);}
+        #copy-feedback { color: var(--success-color); font-size: 14px; font-weight: bold; margin-left: 10px; opacity: 0; transition: opacity 0.3s ease-in-out; }
+        #copy-feedback.show { opacity: 1; }
+        #toast-notifier { visibility: hidden; min-width: 280px; background-color: var(--success-color); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; transition: visibility 0.5s, opacity 0.5s linear, background-color 0.3s; }
+        #toast-notifier.show { visibility: visible; opacity: 1; }
+        #toast-notifier.error { background-color: var(--error-color); }
+        #withdraw-page .content, #profile-page .content, #deposit-page .content, #my-ticket-page .content { padding: 25px; width: 100%; box-sizing: border-box; }
+        .page-title { font-size: 18px; color: var(--text-color); margin-bottom: 25px; font-weight: bold; text-align: center; text-transform: uppercase; }
+        .payment-methods { display: flex; justify-content: center; align-items: flex-start; gap: 15px; margin-bottom: 30px; }
+        .payment-method { display: flex; flex-direction: column; align-items: center; cursor: pointer; border-radius: 10px; padding: 10px; border: 2px solid transparent; transition: all 0.3s ease; }
+        .payment-method .logo-wrapper { background-color: #fff; border-radius: 8px; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: all 0.3s ease; }
+        .payment-method img { display: block; }
+        .payment-method span { margin-top: 8px; font-size: 14px; font-weight: bold; color: var(--text-color); }
+        .payment-method.selected { border-color: var(--primary-color); }
+        .payment-method.selected .logo-wrapper { background-color: var(--primary-color); }
+        .payment-method.selected span { color: var(--primary-color); }
+        .payment-method.selected .logo-wrapper { width: 90px; height: 60px; }
+        .payment-method.selected img { height: 45px; filter: brightness(0) invert(1); }
+        .payment-method:not(.selected) .logo-wrapper { width: 80px; height: 50px; }
+        .payment-method:not(.selected) img { height: 35px; }
+        .payment-method.selected img.bkash-logo { height: 35px; }
+        .page-input-group { display: flex; align-items: center; background-color: #fff; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
+        .page-input-group .icon-container { background-color: var(--primary-color); padding: 15px; display: flex; align-items: center; justify-content: center; }
+        .page-input-group .icon-container i { color: var(--secondary-color); font-size: 24px; }
+        .page-input-group input { flex-grow: 1; border: none; padding: 15px; font-size: 16px; background: transparent; }
+        .page-input-group input:focus { outline: none; }
+        .page-btn { width: 100%; padding: 16px; border: none; border-radius: 10px; background-color: var(--primary-color); color: var(--secondary-color); font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.2s ease;}
+        .page-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+        .page-btn:active { transform: translateY(1px); }
+        #deposit-form-container { display: none; width: 100%; padding-top: 20px; border-top: 1px solid #ddd; margin-top: 20px;}
+        .form-section { margin-bottom: 40px; }
+        .form-section h4 { color: #888; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .profile-form-group { position: relative; margin-bottom: 25px; }
+        .profile-form-group label { position: absolute; top: -10px; left: 10px; background-color: var(--light-gray); padding: 0 5px; font-size: 12px; color: #666; }
+        .profile-form-group input { width: 100%; padding: 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; background-color: #fff; }
+        .profile-form-group input:read-only { background-color: #eee; cursor: not-allowed; }
+        .profile-btn { width: 100%; padding: 16px; border: none; border-radius: 30px; background-color: var(--primary-color); color: var(--secondary-color); font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.2s ease; }
+        .profile-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+        .profile-btn:active { transform: translateY(1px); }
+        .stats-container { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+        .stat-card { background-color: var(--secondary-color); border-radius: 15px; padding: 25px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 20px; border-left: 8px solid; transition: transform 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card .icon-wrapper { font-size: 40px; padding: 15px; border-radius: 50%; color: var(--secondary-color); }
+        .stat-card.win { border-color: var(--success-color); }
+        .stat-card.win .icon-wrapper { background-color: var(--success-color); }
+        .stat-card.loss { border-color: var(--error-color); }
+        .stat-card.loss .icon-wrapper { background-color: var(--error-color); }
+        .stat-card.progress { border-color: var(--progress-color); }
+        .stat-card.progress .icon-wrapper { background-color: var(--progress-color); }
+        .stat-card .info { text-align: left; }
+        .stat-card h4 { margin: 0 0 5px 0; color: var(--text-color); font-size: 16px; text-transform: uppercase; }
+        .stat-card .count { font-size: 28px; font-weight: bold; color: #333; }
+        .modal-body { padding: 20px 25px 30px; }
+        .modal-body .form-group input { border-radius: 30px; padding-left: 20px; padding-right: 20px; text-align: center; }
+        .modal-btn { width: 100%; padding: 15px; border: none; border-radius: 30px; background-color: var(--primary-color); color: var(--secondary-color); font-size: 18px; font-weight: bold; cursor: pointer; box-sizing: border-box; text-transform: uppercase; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.2s ease; }
+        .modal-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+        .modal-btn:active { transform: translateY(1px); }
+        .modal-btn:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
+        .help-line-content { text-align: center; padding: 20px 25px 30px; }
+        .help-line-content p { font-size: 18px; color: var(--text-color); margin-bottom: 10px; }
+        .help-line-content .email-address { font-size: 20px; font-weight: bold; color: var(--primary-color); background-color: #fff; padding: 15px; border-radius: 10px; display: block; margin-bottom: 25px; word-wrap: break-word; }
+        .help-line-content .email-button { display: inline-block; width: 100%; padding: 15px; border-radius: 30px; background-color: var(--primary-color); color: var(--secondary-color); font-size: 18px; font-weight: bold; text-decoration: none; box-sizing: border-box; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.2s ease; }
+        .help-line-content .email-button:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+        .developer-content { text-align: center; padding: 30px 25px; }
+        .developer-content .developer-logo { font-size: 80px; color: var(--primary-color); margin-bottom: 15px; }
+        .developer-content p { font-size: 18px; color: var(--text-color); margin-bottom: 25px; }
+        .developer-content .developer-button { display: inline-block; width: 100%; padding: 15px; border-radius: 30px; background-color: var(--primary-color); color: var(--secondary-color); font-size: 18px; font-weight: bold; text-decoration: none; box-sizing: border-box; text-transform: uppercase; transition: background-color 0.3s; }
+        .ripple { position: absolute; border-radius: 50%; background-color: var(--ripple-color); transform: scale(0); animation: ripple-animation 0.6s linear; pointer-events: none; }
+        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+        .auth-btn, .link-text a, .header .bx, .header .icons i, .tab-button, .fee-button, .join-check, .sidenav-content a, .wallet-btn, .payment-method, .page-btn, .profile-btn, .modal-action-btn, .close-btn, .wallet-number-display i, .amount-presets button, .developer-button, .email-button, .modal-btn { position: relative; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+        #no-internet-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #34495e, #2c3e50); color: #ecf0f1; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; text-align: center; padding: 20px; box-sizing: border-box; }
+        #no-internet-page .icon { font-size: 100px; margin-bottom: 30px; animation: pulse 2s infinite; }
+        #no-internet-page h2 { font-size: 28px; font-weight: 500; margin: 0; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
+        #maintenance-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); color: #ffffff; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; text-align: center; padding: 20px; box-sizing: border-box; }
+        #maintenance-page .icon { font-size: 100px; margin-bottom: 30px; animation: spin 8s linear infinite; }
+        #maintenance-page h2 { font-size: 28px; font-weight: 600; margin: 0 0 15px 0; text-shadow: 2px 2px 5px rgba(0,0,0,0.2); }
+        #maintenance-page p { font-size: 18px; line-height: 1.6; max-width: 400px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        #notification-modal .modal-content { max-height: 80vh; display: flex; flex-direction: column; }
+        #notification-modal .modal-body { padding: 0; flex-grow: 1; overflow-y: auto; }
+        .notification-item { padding: 15px 20px; border-bottom: 1px solid #e0e0e0; }
+        .notification-item:last-child { border-bottom: none; }
+        .notification-item h4 { margin: 0 0 8px 0; color: var(--text-color); font-size: 16px; }
+        .notification-item p { margin: 0 0 8px 0; color: #555; font-size: 14px; line-height: 1.5; }
+        .notification-item .timestamp { font-size: 12px; color: #999; text-align: right; }
+        .notification-item img { max-width: 100%; border-radius: 8px; margin-top: 10px; }
+
+        /* =========== Wingo Page New Styles =========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #wingo-page { background: var(--light-pink-bg); }
+        .wingo-main-container { width: 100%; display: flex; flex-direction: column; animation: fadeIn 0.5s ease-out; }
+        .wingo-header { 
+            background: var(--wingo-header-bg); 
+            color: white; 
+            padding: 15px; 
+            border-radius: 0 0 25px 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .wingo-header .logo { font-size: 24px; font-weight: 700; text-align: center; letter-spacing: 1px; }
+        .wingo-wallet-info { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; }
+        .wingo-balance { text-align: left; }
+        .wingo-balance p { margin: 0; font-size: 14px; opacity: 0.9;}
+        .wingo-balance h3 { margin: 5px 0 0 0; font-size: 24px; font-weight: 700; }
+        .wingo-wallet-actions { display: flex; gap: 10px; }
+        .wingo-wallet-btn { 
+            background: rgba(255,255,255,0.95); 
+            color: var(--wingo-header-bg); 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 20px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            cursor: pointer; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .wingo-wallet-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+        .wingo-announcement { 
+            display: flex; 
+            align-items: center; 
+            background-color: white; 
+            margin: 15px; 
+            padding: 10px 15px; 
+            border-radius: 25px; 
+            font-size: 12px; 
+            color: var(--text-color); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .wingo-announcement i { color: var(--wingo-red); margin-right: 10px; font-size: 18px; }
+
+        .wingo-game-mode {
+            padding: 10px;
+            margin: 0 15px;
+            background: var(--wingo-header-bg);
+            color: white;
+            text-align: center;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .wingo-game-container { 
+            background-color: white; 
+            margin: 15px; 
+            padding: 20px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 25px rgba(239, 78, 78, 0.1); 
+        }
+        .wingo-game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .wingo-how-to-play { font-size: 14px; font-weight: 500; color: var(--text-color); display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .wingo-timer-section { text-align: right; }
+        .wingo-timer-section p { margin: 0; font-size: 14px; color: #888; font-weight: 500;}
+        .wingo-countdown { font-size: 40px; font-weight: 800; color: var(--wingo-header-bg); }
+        .wingo-period-id { font-size: 14px; color: #555; text-align: center; display: block; margin-top: -10px; margin-bottom: 15px; font-weight: 600; }
+        
+        .wingo-history { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
+        .history-result-ball { 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            color: white; 
+            font-weight: 700; 
+            font-size: 16px; 
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        .history-result-ball.green { background-color: var(--wingo-green); }
+        .history-result-ball.red { background-color: var(--wingo-red); }
+        .history-result-ball.violet { background: linear-gradient(135deg, var(--wingo-green) 50%, var(--wingo-violet) 50%); }
+        .history-result-ball.red-violet { background: linear-gradient(135deg, var(--wingo-red) 50%, var(--wingo-violet) 50%); }
+
+        .wingo-bet-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .wingo-bet-btn { 
+            border: none; 
+            padding: 15px 0; 
+            border-radius: 12px; 
+            color: white; 
+            font-size: 18px; 
+            font-weight: 700; 
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+       
+        .wingo-number-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 25px; }
+        .number-btn { 
+            border: none; 
+            height: 55px; 
+            border-radius: 12px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 24px; 
+            font-weight: 700; 
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+       
+        .number-btn.green { background-color: var(--wingo-green); color: white; }
+        .number-btn.red { background-color: var(--wingo-red); color: white; }
+        .number-btn.violet { background: linear-gradient(45deg, var(--wingo-green) 49%, var(--wingo-violet) 51%); color: white; }
+        .number-btn.red-violet { background: linear-gradient(45deg, var(--wingo-red) 49%, var(--wingo-violet) 51%); color: white; }
+
+        .wingo-big-small-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px;}
+        .wingo-control-btn.big-small { 
+            border: none;
+            padding: 18px; 
+            font-size: 20px;
+            font-weight: 700;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .wingo-control-btn.big-small:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+        .wingo-control-btn.big-small:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.7; }
+        .wingo-control-btn.big-small.orange { background: linear-gradient(145deg, #ffb74d, var(--wingo-orange)); }
+        .wingo-control-btn.big-small.blue { background: linear-gradient(145deg, #64b5f6, var(--wingo-blue)); }
+
+        /* Result Modal */
+        #wingo-result-modal.modal-overlay { justify-content: center; align-items: center; }
+        #wingo-result-modal .modal-content { max-width: 280px; padding: 30px; text-align: center; border-radius: 20px; }
+        #wingo-result-modal h3 { margin-top: 0; font-size: 24px; font-weight: 600; color: #333;}
+        #wingo-result-modal .result-number { font-size: 70px; font-weight: 800; margin: 15px 0; }
+        #wingo-result-modal .result-size { font-size: 44px; font-weight: 700; text-transform: uppercase; }
+        #wingo-result-modal .result-number.green, #wingo-result-modal .result-size.green { color: var(--wingo-green); }
+        #wingo-result-modal .result-number.red, #wingo-result-modal .result-size.red { color: var(--wingo-red); }
+        #wingo-result-modal .result-number.violet {
+            background: -webkit-linear-gradient(45deg, var(--wingo-violet), var(--wingo-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #wingo-result-modal .result-number.red-violet {
+            background: -webkit-linear-gradient(45deg, var(--wingo-violet), var(--wingo-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <!-- Default pages will go here, unchanged -->
+    <div id="no-internet-page"><div class="icon"><i class='bx bx-wifi-off'></i></div><h2>Check Your Internet Connection</h2></div>
+    <div id="maintenance-page"><div class="icon"><i class='bx bxs-cog'></i></div><h2>Under Maintenance</h2><p>We are currently performing maintenance to improve our service. We'll be back shortly. Thank you for your patience!</p></div>
+    <div id="mySidenav" class="sidenav"><div class="sidenav-header"><a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a><div class="profile-pic"></div><h3 id="sideNav-userName">User</h3><p>Referral Code: <span id="sideNav-rafferCode">N/A</span></p></div><div class="sidenav-content"><a href="javascript:void(0)" onclick="showProfilePage()"><i class='bx bxs-user-circle'></i> MY PROFILE</a><a href="javascript:void(0)" onclick="showMyTicketPage()"><i class='bx bxs-coupon'></i> MY TICKET</a><a href="javascript:void(0)" onclick="showWingoPage()"><i class='bx bxs-joystick-alt'></i> PLAY WINGO</a><a href="javascript:void(0)" onclick="showModal('gift-box-modal')"><i class='bx bxs-gift'></i> GIFT BOX</a><a href="javascript:void(0)" onclick="showModal('help-line-modal')"><i class='bx bxs-help-circle'></i> HELP LINE</a><a href="javascript:void(0)" onclick="logout()"><i class='bx bx-log-out'></i> LOG-OUT</a></div><div class="sidenav-footer"><p>WIN <span class="blue-360">360</span> © 2025</p></div></div>
+    <div id="login-page" class="page auth-page"><div class="auth-container"><div class="auth-logo">WIN <span class="blue-360">360</span></div><div class="input-group"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f9/Flag_of_Bangladesh.svg" alt="BD Flag" class="country-flag"><span class="country-code">+88</span><input id="login-mobile" type="tel" placeholder="Enter Number"></div><div class="input-group"><span class="icon"><i class='bx bxs-lock-alt'></i></span><input id="login-password" type="password" placeholder="Password"></div><button class="auth-btn" onclick="loginUser()">LOGIN</button><div class="link-text">Don't have an account? <a href="#" onclick="showPage('signup-page')">SIGN-UP</a></div></div></div>
+    <div id="signup-page" class="page auth-page"><div class="auth-container"><div class="auth-logo">REGISTER</div><div class="input-group"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f9/Flag_of_Bangladesh.svg" alt="BD Flag" class="country-flag"><span class="country-code">+88</span><input id="signup-mobile" type="tel" placeholder="Enter Number"></div><div class="input-group"><span class="icon"><i class='bx bxs-lock-alt'></i></span><input id="signup-password" type="password" placeholder="New Password"></div><div class="input-group"><span class="icon"><i class='bx bxs-lock-alt'></i></span><input id="signup-confirm-password" type="password" placeholder="Confirm Password"></div><div class="input-group"><span class="icon"><i class='bx bxs-user-plus'></i></span><input id="signup-referral" type="text" placeholder="Referral Code (Optional)"></div><button class="auth-btn" onclick="registerUser()">REGISTER</button><div class="link-text">Already have an account? <a href="#" onclick="showPage('login-page')">LOGIN</a></div></div></div>
+    <div id="home-page" class="page"><header class="header"><div class="back-icon"><i class='bx bx-menu' onclick="openNav()"></i></div><div class="logo">WIN <span class="blue-360">360</span></div><div class="icons"><i class='bx bxs-bell' onclick="window.open('https://t.me/WIN_360', '_blank')"></i><i class='bx bxs-wallet' onclick="showPage('wallet-page')"></i></div></header><nav class="tabs"><button class="tab-button active" onclick="loadMatches('Bronze', this)">BRONZE</button><button class="tab-button" onclick="loadMatches('Silver', this)">SILVER</button><button class="tab-button" onclick="loadMatches('Free Match', this)">FREE MATCH</button></nav><main class="match-container" id="match-container"></main></div>
+    <div id="wallet-page" class="page"><header class="header"><div class="back-icon"><i class='bx bx-arrow-back' onclick="showPage('home-page')"></i></div><h2 class="header-title">MY WALLET</h2><div class="icons"><i class='bx bx-headphone' onclick="showModal('payment-help-modal')"></i></div></header><div class="wallet-main-content"><i class='bx bxs-wallet-alt wallet-icon'></i><h2 class="balance-amount">৳<span id="wallet-balance-amount">0.00</span></h2></div><div class="wallet-actions"><button class="wallet-btn" onclick="showPage('withdraw-page')"><i class='bx bx-minus-circle'></i> WITHDRAW</button><button class="wallet-btn" id="deposit-main-btn" onclick="showPage('deposit-page')"><i class='bx bx-plus-circle'></i> DEPOSIT</button></div><div class="history-container"><nav class="tabs"><button class="tab-button active" onclick="showHistoryTab('withdraw', this)">WITHDRAW HISTORY</button><button class="tab-button" onclick="showHistoryTab('deposit', this)">DEPOSIT HISTORY</button></nav><div id="withdraw-history" class="history-content active"></div><div id="deposit-history" class="history-content"></div></div></div>
+    <div id="withdraw-page" class="page"><header class="header"><div class="back-icon"><i class='bx bx-arrow-back' onclick="showPage('wallet-page')"></i></div><h2 class="header-title">WITHDRAW</h2><div class="icons"></div></header><div class="content"><h3 class="page-title">Select Withdraw Method</h3><div class="payment-methods" id="withdraw-methods-container"><div class="payment-method selected" data-method="Bkash" onclick="selectWithdrawMethod(this)"><div class="logo-wrapper"><img src="https://i.postimg.cc/1zz9HBg6/images.jpg" alt="bKash" class="bkash-logo"></div><span>BKASH</span></div><div class="payment-method" data-method="Nagad" onclick="selectWithdrawMethod(this)"><div class="logo-wrapper"><img src="https://i.postimg.cc/Hk1xmbr8/download.png" alt="Nagad"></div><span>নগদ</span></div><div class="payment-method" data-method="Rocket" onclick="selectWithdrawMethod(this)"><div class="logo-wrapper"><img src="https://i.postimg.cc/9QcDTGc5/download-1.png" alt="Rocket"></div><span>ROCKET</span></div><div class="payment-method" data-method="Upay" onclick="selectWithdrawMethod(this)"><div class="logo-wrapper"><img src="https://i.postimg.cc/HnQL8LKk/download-2.png" alt="Upay"></div><span>UPAY</span></div></div><div class="page-input-group"><div class="icon-container"><i class='bx bx-phone'></i></div><input type="tel" id="withdraw-mobile-input" placeholder="Mobile Number"></div><div class="page-input-group"><div class="icon-container"><i class='bx bxs-dollar-circle'></i></div><input type="number" id="withdraw-amount-input" placeholder="Amount"></div><button class="page-btn" onclick="requestWithdrawal()">WITHDRAW REQUEST</button></div></div>
+    <div id="deposit-page" class="page"><header class="header"><div class="back-icon"><i class='bx bx-arrow-back' onclick="showPage('wallet-page')"></i></div><h2 class="header-title">DEPOSIT</h2><div class="icons"></div></header><div class="content"><h3 class="page-title">Select Deposit Method</h3><div class="payment-methods" id="deposit-methods-container"><div class="payment-method" data-method="Bkash" onclick="selectDepositMethod(this)"><div class="logo-wrapper"><img src="https://i.postimg.cc/1zz9HBg6/images.jpg" alt="Bkash"></div><span>BKASH</span></div><div class="payment-method" data-method="Nagad" onclick="selectDepositMethod(this)"><div class="logo-wrapper"><img src="https://i.postimg.cc/Hk1xmbr8/download.png" alt="Nagad"></div><span>নগদ</span></div><div class="payment-method" data-method="Rocket" onclick="selectDepositMethod(this)"><div class="logo-wrapper"><img src="https://i.postimg.cc/9QcDTGc5/download-1.png" alt="Rocket"></div><span>ROCKET</span></div><div class="payment-method" data-method="Upay" onclick="selectDepositMethod(this)"><div class="logo-wrapper"><img src="https://i.postimg.cc/HnQL8LKk/download-2.png" alt="Upay"></div><span>UPAY</span></div></div><div id="deposit-form-container"><div class="info-box">অনুগ্রহ করে নিচের দেওয়া নম্বরে সেন্ডমানি করে فرمটি পূরণ করুন।</div><div class="form-group"><label id="agent-wallet-label">সেন্ডমানি নাম্বার</label><div class="wallet-number-display"><span id="agent-wallet-number">...</span><div><i class='bx bx-copy' onclick="copyToClipboard('agent-wallet-number')"></i><span id="copy-feedback"></span></div></div></div><div class="form-group"><label>Enter Amount</label><input type="number" id="deposit-amount-input" placeholder="500.00"><div class="amount-presets"><button onclick="setDepositAmount(300)">300</button><button onclick="setDepositAmount(500)">500</button><button onclick="setDepositAmount(1000)">1000</button><button onclick="setDepositAmount(5000)">5000</button></div></div><div class="form-group"><label id="user-wallet-label">আপনার ওয়ালেট নাম্বার:</label><div class="page-input-group"><div class="icon-container"><i class='bx bx-phone'></i></div><input type="tel" id="user-wallet-input" placeholder="01xxxxxxxxx"></div></div><div class="form-group"><label>Transaction ID (TrxID):</label><div class="page-input-group"><div class="icon-container"><i class='bx bx-barcode-reader'></i></div><input type="text" id="trx-id-input" placeholder="e.g., 9J8K7L6P"></div></div><button class="page-btn" onclick="submitDeposit()">SUBMIT DEPOSIT</button></div></div></div>
+    <div id="profile-page" class="page"><header class="header"><div class="back-icon"><i class='bx bx-arrow-back' onclick="showPage('home-page')"></i></div><h2 class="header-title">MY PROFILE</h2><div class="icons"></div></header><div class="content"><div class="form-section"><h4>INFORMATION</h4><div class="profile-form-group"><label for="profile-name">Name</label><input type="text" id="profile-name"></div><div class="profile-form-group"><label for="profile-mobile">Mobile Number</label><input type="text" id="profile-mobile" readonly></div><button class="profile-btn" onclick="updateProfile()">UPDATE NAME</button></div><div class="form-section"><h4>CHANGE PASSWORD</h4><div class="profile-form-group"><label for="profile-old-password">Old Password</label><input type="password" id="profile-old-password" placeholder="Old Password"></div><div class="profile-form-group"><label for="profile-new-password">New Password</label><input type="password" id="profile-new-password" placeholder="New Password"></div><div class="profile-form-group"><label for="profile-confirm-password">Confirm Password</label><input type="password" id="profile-confirm-password" placeholder="Confirm Password"></div><button class="profile-btn" onclick="changePassword()">CHANGE PASSWORD</button></div></div></div>
+    <div id="my-ticket-page" class="page"><header class="header"><div class="back-icon"><i class='bx bx-arrow-back' onclick="showPage('home-page')"></i></div><h2 class="header-title">MY TICKET</h2><div class="icons"></div></header><div class="content"><div class="stats-container"><div class="stat-card win"><div class="icon-wrapper"><i class='bx bxs-trophy'></i></div><div class="info"><h4>Total Win</h4><span class="count" id="ticket-win-count">0</span></div></div><div class="stat-card loss"><div class="icon-wrapper"><i class='bx bxs-x-circle'></i></div><div class="info"><h4>Total Loss</h4><span class="count" id="ticket-loss-count">0</span></div></div><div class="stat-card progress"><div class="icon-wrapper"><i class='bx bx-loader-alt'></i></div><div class="info"><h4>In Progress</h4><span class="count" id="ticket-progress-count">0</span></div></div></div></div></div>
+
+    <!-- =========== WINGO PAGE (NEW DESIGN) =========== -->
+    <div id="wingo-page" class="page">
+        <div class="wingo-main-container">
+            <header class="wingo-header">
+                <div style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+                    <i class='bx bx-arrow-back' onclick="showPage('home-page')" style="font-size: 32px; cursor: pointer;"></i>
+                    <h2 class="logo">WIN 360</h2>
+                    <i class='bx bxs-bell' onclick="window.open('https://t.me/WIN_360', '_blank')" style="font-size: 28px; cursor: pointer;"></i>
+                </div>
+                <div class="wingo-wallet-info">
+                    <div class="wingo-balance">
+                        <p>Wallet balance</p>
+                        <h3 id="wingo-balance-amount">৳0.00</h3>
+                    </div>
+                    <div class="wingo-wallet-actions">
+                        <button class="wingo-wallet-btn" onclick="showPage('wallet-page')">Wallet</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="wingo-announcement">
+                <i class='bx bxs-volume-full'></i>
+                <marquee>Welcome to WIN 360! Play and win exciting prizes. Good luck!</marquee>
+            </div>
+
+            <div class="wingo-game-mode">
+                WinGo 15sec
+            </div>
+
+            <div class="wingo-game-container">
+                <div class="wingo-game-header">
+                    <div class="wingo-how-to-play">
+                        <i class='bx bxs-help-circle'></i> How to play
+                    </div>
+                    <div class="wingo-timer-section">
+                        <p>Time remaining</p>
+                        <div class="wingo-countdown" id="wingo-countdown">00:15</div>
+                    </div>
+                </div>
+                <span class="wingo-period-id" id="wingo-period-id">20250809100050705</span>
+                <div class="wingo-history" id="wingo-history-display">
+                    <!-- History balls will be inserted here by JS -->
+                </div>
+                
+                <div class="wingo-bet-options">
+                    <button class="wingo-bet-btn green">Green</button>
+                    <button class="wingo-bet-btn violet">Violet</button>
+                    <button class="wingo-bet-btn red">Red</button>
+                </div>
+
+                <div class="wingo-number-grid" id="wingo-number-grid">
+                    <!-- Number buttons will be inserted here by JS -->
+                </div>
+
+                <div class="wingo-big-small-controls">
+                    <button class="wingo-control-btn big-small orange" onclick="showWingoBetModal('Big')">Big</button>
+                    <button class="wingo-control-btn big-small blue" onclick="showWingoBetModal('Small')">Small</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MODALS -->
+    <div id="gift-box-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header">GIFT BOX<span class="close-btn" onclick="hideModal('gift-box-modal')"><i class='bx bx-x'></i></span></div><div class="modal-body"><div class="form-group"><input type="text" id="redeem-code-input" placeholder="ENTER REDEEM CODE"></div><button class="modal-btn" onclick="submitRedeemCode()">SUBMIT</button></div></div></div>
+    <div id="help-line-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header">HELP LINE<span class="close-btn" onclick="hideModal('help-line-modal')"><i class='bx bx-x'></i></span></div><div class="help-line-content"><p>যেকোন সমস্যায় সরাসরি মেসেজ করুন</p><span class="email-address">https://t.me/WIN_360_SUPPORT_BOT</span><a href="https://t.me/WIN_360_SUPPORT_BOT" class="email-button">SEND MASSAGE</a></div></div></div>
+    <div id="payment-help-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header">পেমেন্ট হেল্পলাইন<span class="close-btn" onclick="hideModal('payment-help-modal')"><i class='bx bx-x'></i></span></div><div class="help-line-content"><p>যেকোন প্রকার পেমেন্ট সমস্যা হলে মেসেজ  করুন</p><span class="email-address">https://t.me/WIN_360_SUPPORT_BOT</span><a href="https://t.me/WIN_360_SUPPORT_BOT" class="email-button">SEND MASSAGE</a></div></div></div>
+    <div id="notification-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header">Notifications<span class="close-btn" onclick="hideModal('notification-modal')"><i class='bx bx-x'></i></span></div><div class="modal-body" id="notification-list"></div></div></div>
+    <div id="wingo-result-modal" class="modal-overlay" onclick="hideModal('wingo-result-modal')"><div class="modal-content"><h3 id="wingo-result-title">Result</h3><div class="result-number" id="wingo-result-number">5</div><div class="result-size" id="wingo-result-size">BIG</div></div></div>
+    <div id="channel-join-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header">অফিসিয়াল চ্যানেল<span class="close-btn" onclick="hideModal('channel-join-modal')"><i class='bx bx-x'></i></span></div><div class="modal-body" style="text-align: center;"><img src="https://i.postimg.cc/Sx48NCTh/images.jpg" alt="Join Telegram Channel" style="max-width: 150px; border-radius: 8px; margin-bottom: 20px;"><p style="font-size: 18px; color: var(--text-color); margin-bottom: 25px;">অবশ্যই অফিসিয়াল চ্যানেল এ জয়েন করুন যেকোনো আপডেট জানতে।</p><a href="https://t.me/WIN_360" target="_blank" class="modal-btn" style="text-decoration: none; display: block;" onclick="hideModal('channel-join-modal')">জয়েন চ্যানেল</a></div></div></div>
+    
+    <!-- WINGO BET MODAL (NEW) -->
+    <div id="wingo-bet-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 320px;">
+            <div class="modal-header">
+                <h4 id="wingo-bet-modal-title" style="margin: 0;">Bet</h4>
+                <span class="close-btn" onclick="hideModal('wingo-bet-modal')"><i class='bx bx-x'></i></span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="wingo-bet-amount-input">Enter Bet Amount</label>
+                    <input type="number" id="wingo-bet-amount-input" placeholder="e.g., 100">
+                     <small style="color: #666; text-align: center; display: block; margin-top: 8px;">Min: ৳1, Max: ৳50,000</small>
+                </div>
+                <button id="place-bet-btn" class="modal-btn" onclick="placeWingoBet()">PLACE BET</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-notifier"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyArxwXv-Qb9dAs-K8fBjpfzv6aSBiKQ7d4",
+            authDomain: "win360-bd.firebaseapp.com",
+            databaseURL: "https://win360-bd-default-rtdb.firebaseio.com",
+            projectId: "win360-bd",
+            storageBucket: "win360-bd.firebasestorage.app",
+            messagingSenderId: "108298367316",
+            appId: "1:108298367316:web:937c9f5158f967169198c1",
+            measurementId: "G-Y4Y0DN7VRT"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        let currentUserData = {};
+        let appSettings = {};
+        let wingoTimerInterval;
+        let currentWingoPeriodId = null;
+        let currentWingoBet = {};
+        
+        const showPage = (pageId) => {
+            const maintenancePage = document.getElementById('maintenance-page');
+            if (maintenancePage.style.display === 'flex') return;
+
+            if (pageId !== 'wingo-page' && wingoTimerInterval) {
+                clearInterval(wingoTimerInterval);
+                wingoTimerInterval = null;
+            }
+             if (pageId === 'wallet-page') {
+                showHistoryTab('withdraw', document.querySelector('#wallet-page .tab-button'));
+            }
+
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const page = document.getElementById(pageId);
+            if (page) page.classList.add('active');
+            closeNav();
+        };
+        const openNav = () => { document.getElementById("mySidenav").style.width = "280px"; };
+        const closeNav = () => { document.getElementById("mySidenav").style.width = "0"; };
+        const showToast = (message, type = 'success') => {
+            const notifier = document.getElementById('toast-notifier');
+            notifier.textContent = message;
+            notifier.className = 'show';
+            if (type === 'error') { notifier.classList.add('error'); }
+            setTimeout(() => { notifier.className = ''; }, 3000);
+        };
+        const createRipple = (event) => {
+            const element = event.currentTarget;
+            if(element.style.cursor === 'not-allowed' || element.disabled) return;
+            const circle = document.createElement("span");
+            const diameter = Math.max(element.clientWidth, element.clientHeight);
+            const radius = diameter / 2;
+            const rect = element.getBoundingClientRect();
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - rect.left - radius}px`;
+            circle.style.top = `${event.clientY - rect.top - radius}px`;
+            circle.classList.add("ripple");
+            const existingRipple = element.getElementsByClassName("ripple")[0];
+            if (existingRipple) existingRipple.remove();
+            element.appendChild(circle);
+        };
+        const checkInternetConnection = () => {
+            const noInternetPage = document.getElementById('no-internet-page');
+            if (!navigator.onLine) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                noInternetPage.style.display = 'flex';
+            } else {
+                noInternetPage.style.display = 'none';
+                if (!document.querySelector('.page.active') && document.getElementById('maintenance-page').style.display !== 'flex') {
+                   auth.onAuthStateChanged(user => { if(!user) showPage('login-page'); });
+                }
+            }
+        };
+
+        const loginUser = () => {
+            const mobileInput = document.getElementById('login-mobile').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            if (!mobileInput || !password) return showToast('দয়া করে মোবাইল নম্বর এবং পাসওয়ার্ড লিখুন', 'error');
+            const email = "+88" + mobileInput + '@win360.com';
+            auth.signInWithEmailAndPassword(email, password).catch(err => {
+                showToast(err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' ? 'পাসওয়ার্ড ভুল' : 'একটি ত্রুটি ঘটেছে: ' + err.message, 'error');
+            });
+        };
+
+        const registerUser = () => {
+            const mobileInput = document.getElementById('signup-mobile').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
+            const referralCode = document.getElementById('signup-referral').value.trim();
+
+            if (!mobileInput || !password || !confirmPassword) return showToast('দয়া করে সব ঘর পূরণ করুন', 'error');
+            if (password !== confirmPassword) return showToast('পাসওয়ার্ড দুটি মিলছে না।', 'error');
+            if (password.length < 6) return showToast('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।', 'error');
+            
+            const email = "+88" + mobileInput + '@win360.com';
+            auth.createUserWithEmailAndPassword(email, password).then(cred => {
+                const user = cred.user;
+                database.ref('users/' + user.uid).set({
+                    mobile: "+88" + mobileInput, name: 'User' + user.uid.substring(0, 4), balance: 0, pendingWithdrawal: 0,
+                    status: 'active', referralCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+                    referredBy: referralCode || null, wins: 0, losses: 0, progress: 0, createdAt: new Date().toISOString()
+                }).then(() => {
+                    showToast('নিবন্ধন সফল হয়েছে!', 'success');
+                });
+            }).catch(err => {
+                showToast(err.code === 'auth/email-already-in-use' ? 'এই মোবাইল নম্বর দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট আছে।': 'একটি ত্রুটি ঘটেছে: ' + err.message, 'error');
+            });
+        };
+        
+        const logout = () => auth.signOut();
+
+        const updateWithdrawMethodsUI = (withdrawSettings) => {
+            const container = document.getElementById('withdraw-methods-container');
+            if (!container) return;
+
+            let firstVisibleMethod = null;
+            let isSelectedMethodVisible = false;
+
+            container.querySelectorAll('.payment-method').forEach(el => {
+                const methodName = el.dataset.method;
+                if (withdrawSettings && withdrawSettings[methodName] && withdrawSettings[methodName].active === true) {
+                    el.style.display = 'flex';
+                    if (!firstVisibleMethod) {
+                        firstVisibleMethod = el;
+                    }
+                    if (el.classList.contains('selected')) {
+                        isSelectedMethodVisible = true;
+                    }
+                } else {
+                    el.style.display = 'none';
+                    el.classList.remove('selected');
+                }
+            });
+
+            if (!isSelectedMethodVisible && firstVisibleMethod) {
+                firstVisibleMethod.classList.add('selected');
+            }
+        };
+
+        const updateDepositMethodsUI = (depositSettings) => {
+            const container = document.getElementById('deposit-methods-container');
+            if (!container) return;
+            
+            container.querySelectorAll('.payment-method').forEach(el => {
+                const methodName = el.dataset.method;
+                if (depositSettings && depositSettings[methodName] && depositSettings[methodName].active === true && depositSettings[methodName].number) {
+                    el.style.display = 'flex';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+            
+            const selectedMethod = container.querySelector('.payment-method.selected');
+            if (selectedMethod && selectedMethod.style.display === 'none') {
+                selectedMethod.classList.remove('selected');
+                document.getElementById('deposit-form-container').style.display = 'none';
+            }
+        };
+
+        const loadAppSettings = () => {
+            database.ref('settings').on('value', (snapshot) => {
+                const maintenancePage = document.getElementById('maintenance-page');
+                if (snapshot.exists()) {
+                    appSettings = snapshot.val();
+                    
+                    updateDepositMethodsUI(appSettings.paymentMethods);
+                    updateWithdrawMethodsUI(appSettings.withdrawMethods);
+
+                    if (appSettings.appMaintenance === true) {
+                        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+                        maintenancePage.style.display = 'flex';
+                    } else {
+                        maintenancePage.style.display = 'none';
+                    }
+                } else {
+                    maintenancePage.style.display = 'none';
+                    updateDepositMethodsUI({});
+                    updateWithdrawMethodsUI({});
+                }
+            });
+        };
+
+        window.onload = () => {
+            checkInternetConnection();
+            window.addEventListener('online', checkInternetConnection);
+            window.addEventListener('offline', checkInternetConnection);
+            
+            loadAppSettings();
+            initializeWingoNumberGrid();
+
+            auth.onAuthStateChanged(user => {
+                if(user) {
+                    database.ref('users/' + user.uid).on('value', (snapshot) => {
+                        if (snapshot.exists()) {
+                            const userData = snapshot.val();
+                            if (userData.status === 'blocked') {
+                                showToast('Your account has been blocked.', 'error');
+                                auth.signOut();
+                                return;
+                            }
+                            currentUserData = { uid: user.uid, ...userData };
+                            const balanceText = `৳${(userData.balance || 0).toFixed(2)}`;
+                            document.getElementById('wallet-balance-amount').innerText = (userData.balance || 0).toFixed(2);
+                            document.getElementById('wingo-balance-amount').innerText = balanceText;
+                            document.getElementById('sideNav-userName').innerText = userData.name;
+                            document.getElementById('sideNav-rafferCode').innerText = userData.referralCode;
+                            document.getElementById('profile-name').value = userData.name;
+                            document.getElementById('profile-mobile').value = userData.mobile;
+                            document.getElementById('ticket-win-count').innerText = userData.wins || 0;
+                            document.getElementById('ticket-loss-count').innerText = userData.losses || 0;
+                            document.getElementById('ticket-progress-count').innerText = userData.progress || 0;
+                        }
+                    });
+                    
+                    loadTransactionHistory(user.uid);
+                    loadNotifications();
+                    showPage('home-page');
+                    loadMatches('Bronze', document.querySelector('#home-page .tab-button.active'));
+
+                    if (!sessionStorage.getItem('channelModalShown')) {
+                        setTimeout(() => {
+                            showModal('channel-join-modal');
+                            sessionStorage.setItem('channelModalShown', 'true');
+                        }, 500); 
+                    }
+
+                } else {
+                    currentUserData = {};
+                    sessionStorage.removeItem('channelModalShown');
+                    showPage('login-page');
+                }
+            });
+
+            document.querySelectorAll('.auth-btn, .link-text a, .header .bx, .header .icons i, .tab-button, .fee-button, .join-check, .sidenav-content a, .wallet-btn, .payment-method, .page-btn, .profile-btn, .modal-action-btn, .close-btn, .wallet-number-display i, .amount-presets button, .developer-button, .email-button, .modal-btn, .wingo-wallet-btn, .wingo-control-btn').forEach(el => el.addEventListener("click", createRipple));
+        };
+        
+        const loadMatches = (category, element) => {
+            const container = document.getElementById('match-container');
+            container.innerHTML = `<p class="info-text">Loading ${category} Matches...</p>`;
+            document.querySelectorAll("#home-page .tab-button").forEach(btn => btn.classList.remove("active"));
+            if(element) element.classList.add("active");
+
+            const matchesRef = database.ref(`matches/${category}`);
+            matchesRef.on('value', (snapshot) => {
+                container.innerHTML = '';
+                if (!snapshot.exists()) return container.innerHTML = `<p class="info-text">No Match Found</p>`;
+                
+                snapshot.forEach(childSnapshot => {
+                    const matchKey = childSnapshot.key;
+                    const match = childSnapshot.val();
+                    const spotsLeft = match.totalSpots - match.filledSpots;
+                    const progress = match.totalSpots > 0 ? (match.filledSpots / match.totalSpots) * 100 : 0;
+                    container.innerHTML += `<div class="match-card"><div class="card-header"># ${match.matchId}</div><div class="card-body"><div class="prize-info"><div class="prize-pool"><h4>Prize Pool</h4><span class="amount">৳${match.prizePool}</span></div><div class="entry-fee"><h4>Entry Fee</h4><button class="fee-button" onclick="joinMatch('${matchKey}', '${category}', ${match.entryFee})">৳${match.entryFee}</button></div></div><div class="progress-bar-container"><div class="progress-bar"><div class="progress-bar-fill" style="width: ${progress}%;"></div></div><div class="spots-info"><span>Only ${spotsLeft} Spots Left</span><span>${match.filledSpots}/${match.totalSpots}</span></div></div></div><div class="card-footer"><div class="footer-info"><i class='bx bxs-award'></i><span>৳${match.winAmount}</span><i class='bx bxs-user-detail'></i><span>${match.winners} Winner's</span></div><div class="join-check"><i class='bx bx-check'></i></div></div></div>`;
+                });
+            });
+        };
+
+        const joinMatch = (matchKey, category, entryFee) => {
+            const user = auth.currentUser;
+            if (!user) return showToast("Please login to join.", "error");
+
+            if (currentUserData.balance < entryFee) return showToast("Insufficient balance.", "error");
+
+            const userRef = database.ref('users/' + user.uid);
+            const matchRef = database.ref(`matches/${category}/${matchKey}`);
+
+            userRef.child('tickets/' + matchKey).once('value', snapshot => {
+                if (snapshot.exists()) return showToast("You have already joined this match.", "error");
+                
+                matchRef.transaction(match => {
+                    if (match && match.filledSpots < match.totalSpots) {
+                        match.filledSpots++;
+                        return match;
+                    }
+                    return; 
+                }).then(result => {
+                    if (!result.committed) return showToast("Match is full or no longer available.", "error");
+                    
+                    const updates = {};
+                    updates[`users/${user.uid}/balance`] = currentUserData.balance - entryFee;
+                    updates[`users/${user.uid}/progress`] = (currentUserData.progress || 0) + 1;
+                    updates[`users/${user.uid}/tickets/${matchKey}`] = {
+                        matchId: result.snapshot.val().matchId,
+                        category: category,
+                        entryFee: entryFee,
+                        status: 'progress'
+                    };
+                    database.ref().update(updates).then(() => {
+                        showToast("Successfully joined the match!", "success");
+                    }).catch(err => {
+                        showToast("Failed to update your details. Please contact support.", "error");
+                        matchRef.child('filledSpots').transaction(currentSpots => currentSpots - 1);
+                    });
+                });
+            });
+        };
+
+        const showHistoryTab = (tabName, element) => {
+            document.querySelectorAll('#wallet-page .history-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('#wallet-page .tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`${tabName}-history`).classList.add('active');
+            element.classList.add('active');
+        };
+
+        const showModal = (modalId) => { 
+            const modal = document.getElementById(modalId);
+            if(modal) { modal.style.display = 'flex'; closeNav(); }
+        };
+        const hideModal = (modalId) => { 
+            const modal = document.getElementById(modalId);
+            if(modal) modal.style.display = 'none'; 
+        };
+        
+        const copyToClipboard = (elementId) => {
+            const textToCopy = document.getElementById(elementId).innerText;
+            const feedback = document.getElementById('copy-feedback');
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                feedback.innerText = 'কপি হয়েছে';
+                feedback.classList.add('show');
+                setTimeout(() => { feedback.classList.remove('show'); }, 1500);
+            }).catch(err => showToast('Failed to copy', 'error'));
+        };
+
+        const loadTransactionHistory = (userId) => {
+            const render = (containerId, snapshot, type) => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                if (!snapshot.exists()) return container.innerHTML = `<p class="info-text">No history found.</p>`;
+                const items = [];
+                snapshot.forEach(child => items.push({ ...child.val() }));
+                items.sort((a, b) => b.timestamp - a.timestamp).forEach(item => {
+                    const date = new Date(item.timestamp).toLocaleString('en-GB');
+                    const statusClass = (item.status || 'pending').toLowerCase();
+                    if(type === 'deposit') {
+                        container.innerHTML += `<div class="history-card"><div class="history-card-info"><span class="amount">৳ ${item.amount.toFixed(2)}</span><span class="trxId">TrxID: ${item.trxId}</span><span class="date">${date}</span></div><div class="history-card-status ${statusClass}">${item.status}</div></div>`;
+                    } else { // withdraw
+                         container.innerHTML += `<div class="history-card"><div class="history-card-info"><span class="amount">৳ ${item.amount.toFixed(2)}</span><span class="trxId">To: ${item.mobile} (${item.method})</span><span class="date">${date}</span></div><div class="history-card-status ${statusClass}">${item.status}</div></div>`;
+                    }
+                });
+            };
+            database.ref('withdrawal_requests').orderByChild('userId').equalTo(userId).on('value', s => render('withdraw-history', s, 'withdraw'));
+            database.ref('deposit_requests').orderByChild('userId').equalTo(userId).on('value', s => render('deposit-history', s, 'deposit'));
+        };
+
+        const setDepositAmount = (amount) => document.getElementById('deposit-amount-input').value = amount.toFixed(2);
+
+        const selectDepositMethod = (element) => {
+            document.querySelectorAll('#deposit-methods-container .payment-method').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+
+            const methodName = element.dataset.method;
+            const method = appSettings.paymentMethods[methodName];
+            
+            if (!method || !method.number || method.active !== true) {
+                showToast('এই পেমেন্ট মেথডটি এখন উপলব্ধ নেই।', 'error');
+                document.getElementById('deposit-form-container').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('agent-wallet-label').innerText = `${methodName} সেন্ডমানি নাম্বার`;
+            document.getElementById('agent-wallet-number').innerText = method.number;
+            document.getElementById('user-wallet-label').innerText = `আপনার ${methodName} ওয়ালেট নাম্বার`;
+            document.getElementById('deposit-form-container').style.display = 'block';
+        };
+
+        const submitDeposit = () => {
+            const selectedMethodEl = document.querySelector('#deposit-methods-container .payment-method.selected');
+            if (!selectedMethodEl) return showToast('দয়া করে প্রথমে একটি পেমেন্ট মেথড বাছাই করুন', 'error');
+
+            const amount = parseFloat(document.getElementById('deposit-amount-input').value);
+            const userWallet = document.getElementById('user-wallet-input').value.trim();
+            const trxId = document.getElementById('trx-id-input').value.trim();
+            
+            if (!userWallet || !trxId || !amount) return showToast('দয়া করে সকল তথ্য পূরণ করুন', 'error');
+            if (amount < (appSettings.limits?.deposit?.min || 100)) return showToast(`সর্বনিম্ন ${appSettings.limits?.deposit?.min || 300} টাকা ডিপোজিট করতে হবে।`, 'error');
+            
+            const user = auth.currentUser;
+            if (!user) return showToast('দয়া করে আবার লগইন করুন', 'error');
+            
+            const methodName = selectedMethodEl.dataset.method;
+
+            database.ref('deposit_requests').push({
+                userId: user.uid, userName: currentUserData.name, amount: amount,
+                method: methodName, trxId: trxId, userWallet: userWallet, 
+                status: 'pending', timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                showToast('ডিপোজিট রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!', 'success');
+                showPage('wallet-page');
+            }).catch(err => showToast('ত্রুটি: ' + err.message, 'error'));
+        };
+
+        const selectWithdrawMethod = (element) => {
+            document.querySelectorAll('#withdraw-methods-container .payment-method').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+        };
+        
+        const requestWithdrawal = () => {
+            const amount = parseFloat(document.getElementById('withdraw-amount-input').value);
+            const mobile = document.getElementById('withdraw-mobile-input').value.trim();
+            const minWithdraw = appSettings.limits?.withdraw?.min || 100;
+
+            const selectedMethodEl = document.querySelector('#withdraw-methods-container .payment-method.selected');
+            if (!selectedMethodEl) return showToast('একটি সক্রিয় পেমেন্ট মেথড বাছাই করুন।', 'error');
+            
+            if (!mobile || !amount) return showToast('আপনার নাম্বার এবং অ্যামাউন্ট লিখুন', 'error');
+            if (amount < minWithdraw) return showToast(`সর্বনিম্ন ${minWithdraw} টাকা উইথড্র করতে পারবেন।`, 'error');
+            if (amount > currentUserData.balance) return showToast('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই।', 'error');
+
+            const user = auth.currentUser;
+            if (!user) return showToast('ব্যবহারকারী লগইন করা নেই!', 'error');
+            
+            const method = selectedMethodEl.dataset.method;
+            
+            const userRef = database.ref(`users/${user.uid}`);
+            userRef.transaction(currentUser => {
+                if (currentUser && currentUser.balance >= amount) {
+                    currentUser.balance -= amount;
+                    currentUser.pendingWithdrawal = (currentUser.pendingWithdrawal || 0) + amount;
+                    return currentUser;
+                }
+                return;
+            }).then(result => {
+                if (!result.committed) return showToast('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই।', 'error');
+
+                database.ref('withdrawal_requests').push({
+                    userId: user.uid, userName: currentUserData.name, amount: amount, method: method,
+                    mobile: mobile, status: 'pending', timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    showToast('উইথড্র রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!', 'success');
+                    showPage('wallet-page');
+                });
+            }).catch(err => showToast('একটি ত্রুটি ঘটেছে, আবার চেষ্টা করুন।', 'error'));
+        };
+
+        const showProfilePage = () => showPage('profile-page');
+        const showMyTicketPage = () => { showPage('my-ticket-page'); };
+        
+        const updateProfile = () => {
+            const newName = document.getElementById('profile-name').value.trim();
+            if (!newName) return showToast('Name cannot be empty.', 'error');
+            const user = auth.currentUser;
+            if (!user) return;
+
+            database.ref(`users/${user.uid}/name`).set(newName)
+                .then(() => showToast('Name updated successfully!', 'success'))
+                .catch(err => showToast('Error: ' + err.message, 'error'));
+        };
+
+        const changePassword = () => {
+            const oldPass = document.getElementById('profile-old-password').value;
+            const newPass = document.getElementById('profile-new-password').value;
+            const confirmPass = document.getElementById('profile-confirm-password').value;
+
+            if (!oldPass || !newPass || !confirmPass) return showToast('Please fill all password fields.', 'error');
+            if (newPass.length < 6) return showToast('New password must be at least 6 characters.', 'error');
+            if (newPass !== confirmPass) return showToast('New passwords do not match.', 'error');
+            
+            const user = auth.currentUser;
+            const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
+
+            user.reauthenticateWithCredential(credential).then(() => {
+                return user.updatePassword(newPass);
+            }).then(() => {
+                showToast('Password changed successfully!', 'success');
+                document.getElementById('profile-old-password').value = '';
+                document.getElementById('profile-new-password').value = '';
+                document.getElementById('profile-confirm-password').value = '';
+            }).catch(err => {
+                showToast(err.code === 'auth/wrong-password' ? 'Old password is incorrect.' : 'Error: ' + err.message, 'error');
+            });
+        };
+        
+        const submitRedeemCode = () => {
+            const code = document.getElementById('redeem-code-input').value.trim().toUpperCase();
+            if (!code) return showToast('Please enter a redeem code.', 'error');
+
+            const validCode = (appSettings.redeem?.code || '').toUpperCase();
+            const redeemAmount = appSettings.redeem?.amount || 0;
+
+            if (!validCode || code !== validCode) return showToast('Invalid redeem code.', 'error');
+            
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const redeemRef = database.ref(`users/${user.uid}/redeemedCodes/${code}`);
+            redeemRef.once('value', snapshot => {
+                if (snapshot.exists()) return showToast('You have already used this code.', 'error');
+                
+                const newBalance = (currentUserData.balance || 0) + redeemAmount;
+                database.ref(`users/${user.uid}/balance`).set(newBalance).then(() => {
+                    redeemRef.set(true); 
+                    hideModal('gift-box-modal');
+                    showToast(`Congratulations! You have received ৳${redeemAmount}.`, 'success');
+                });
+            });
+        };
+
+        const loadNotifications = () => {
+            const container = document.getElementById('notification-list');
+            database.ref('notifications').limitToLast(20).on('value', snapshot => {
+                container.innerHTML = '';
+                if (!snapshot.exists()) return container.innerHTML = '<p class="info-text">No notifications yet.</p>';
+                const notifications = [];
+                snapshot.forEach(child => notifications.push(child.val()));
+                notifications.reverse().forEach(n => {
+                    const date = new Date(n.timestamp).toLocaleString();
+                    container.innerHTML += `<div class="notification-item"><h4>${n.title}</h4><p>${n.message}</p>${n.imageLink ? `<img src="${n.imageLink}" alt="Notification Image">` : ''}<div class="timestamp">${date}</div></div>`;
+                });
+            });
+        };
+
+        // ================= WINGO GAME LOGIC (BIASED RESULT 48% WIN CHANCE) =================
+
+        const showWingoPage = () => {
+            showPage('wingo-page');
+            if (!wingoTimerInterval) { 
+                startNewWingoRound();
+            }
+        };
+
+        const getWingoNumberInfo = (num) => {
+            const number = parseInt(num);
+            let color, size;
+
+            if (number === 1 || number === 3 || number === 7 || number === 9) color = 'green';
+            else if (number === 2 || number === 4 || number === 6 || number === 8) color = 'red';
+            else if (number === 0) color = 'red-violet'; 
+            else if (number === 5) color = 'violet'; 
+            
+            size = (number >= 5) ? 'big' : 'small';
+
+            return { number, color, size };
+        };
+
+        const initializeWingoNumberGrid = () => {
+            const grid = document.getElementById('wingo-number-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const info = getWingoNumberInfo(i);
+                grid.innerHTML += `<button class="number-btn ${info.color}">${i}</button>`;
+            }
+        };
+
+        const updateWingoHistoryDisplay = (resultNumber) => {
+            const historyContainer = document.getElementById('wingo-history-display');
+            const info = getWingoNumberInfo(resultNumber);
+
+            const newBall = document.createElement('div');
+            newBall.className = `history-result-ball ${info.color}`;
+            newBall.textContent = resultNumber;
+            
+            historyContainer.prepend(newBall);
+            if(historyContainer.children.length > 10) {
+                historyContainer.removeChild(historyContainer.lastChild);
+            }
+        };
+        
+        const showWingoResult = (resultNumber) => {
+            const info = getWingoNumberInfo(resultNumber);
+            const resultNumEl = document.getElementById('wingo-result-number');
+            const resultSizeEl = document.getElementById('wingo-result-size');
+
+            resultNumEl.textContent = info.number;
+            resultSizeEl.textContent = info.size;
+
+            resultNumEl.className = 'result-number ' + info.color;
+            resultSizeEl.className = 'result-size ' + (info.color.includes('red') ? 'red' : 'green');
+            
+            showModal('wingo-result-modal');
+        };
+
+        const startNewWingoRound = () => {
+            if (wingoTimerInterval) clearInterval(wingoTimerInterval);
+
+            let countdown = 15;
+            const countdownEl = document.getElementById('wingo-countdown');
+            const periodIdEl = document.getElementById('wingo-period-id');
+            const bettingButtons = document.querySelectorAll('.wingo-control-btn');
+
+            const now = new Date();
+            const periodId = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}${String(now.getUTCDate()).padStart(2, '0')}${String(now.getUTCHours()).padStart(2, '0')}${String(now.getUTCMinutes()).padStart(2, '0')}${String(Math.floor(now.getUTCSeconds() / 15)).padStart(2, '0')}`;
+            periodIdEl.textContent = `Period #${periodId}`;
+            currentWingoPeriodId = periodId;
+
+            bettingButtons.forEach(btn => btn.disabled = false);
+            countdownEl.style.color = 'var(--wingo-header-bg)';
+            countdownEl.textContent = `00:${String(countdown).padStart(2, '0')}`;
+
+            wingoTimerInterval = setInterval(() => {
+                countdown--;
+                countdownEl.textContent = `00:${String(countdown).padStart(2, '0')}`;
+                
+                if (countdown <= 3) {
+                    bettingButtons.forEach(btn => btn.disabled = true);
+                    countdownEl.style.color = 'var(--error-color)';
+                }
+                
+                if (countdown < 0) {
+                    clearInterval(wingoTimerInterval);
+                    countdownEl.textContent = "Processing...";
+                    finalizeWingoRound(currentWingoPeriodId);
+                }
+            }, 1000);
+        };
+
+        const finalizeWingoRound = (periodId) => {
+            const user = auth.currentUser;
+            if (!user) {
+                const randomResult = Math.floor(Math.random() * 10);
+                 setTimeout(() => {
+                    updateWingoHistoryDisplay(randomResult);
+                    showWingoResult(randomResult);
+                    startNewWingoRound();
+                }, 4000);
+                return;
+            }
+
+            const betsRef = database.ref(`wingo_bets/${user.uid}/${periodId}`);
+            betsRef.once('value', snapshot => {
+                
+                let totalBigBet = 0;
+                let totalSmallBet = 0;
+
+                if (snapshot.exists()) {
+                    snapshot.forEach(betSnap => {
+                        const bet = betSnap.val();
+                        if (bet.type.toLowerCase() === 'big') {
+                            totalBigBet += bet.amount;
+                        } else if (bet.type.toLowerCase() === 'small') {
+                            totalSmallBet += bet.amount;
+                        }
+                    });
+                }
+
+                const generateRandomSmall = () => Math.floor(Math.random() * 5); // 0-4
+                const generateRandomBig = () => 5 + Math.floor(Math.random() * 5); // 5-9
+
+                let resultNumber;
+                const WIN_CHANCE = 0.48; // 48% chance to win
+                const randomFactor = Math.random();
+
+                if (totalBigBet > totalSmallBet) {
+                    // User bet more on Big. They win if the result is Big.
+                    resultNumber = randomFactor < WIN_CHANCE ? generateRandomBig() : generateRandomSmall();
+                } else if (totalSmallBet > totalBigBet) {
+                    // User bet more on Small. They win if the result is Small.
+                    resultNumber = randomFactor < WIN_CHANCE ? generateRandomSmall() : generateRandomBig();
+                } else {
+                    // Equal bets or no bets, so the result is completely random.
+                    resultNumber = Math.floor(Math.random() * 10);
+                }
+
+                if (snapshot.exists()) {
+                    let totalWinnings = 0;
+                    let totalLoss = 0;
+                    const winningInfo = getWingoNumberInfo(resultNumber);
+
+                    snapshot.forEach(betSnapshot => {
+                        const bet = betSnapshot.val();
+                        if (bet.status === 'placed') {
+                            let updateData = {
+                                resultNumber: resultNumber,
+                                resultSize: winningInfo.size,
+                                status: 'loss'
+                            };
+
+                            if (bet.type.toLowerCase() === winningInfo.size.toLowerCase()) {
+                                const winnings = bet.amount * 1.90;
+                                totalWinnings += winnings;
+                                updateData.status = 'win';
+                            } else {
+                                totalLoss += bet.amount;
+                            }
+                            betSnapshot.ref.update(updateData);
+                        }
+                    });
+
+                    if (totalWinnings > 0) {
+                        database.ref(`users/${user.uid}/balance`).transaction(balance => (balance || 0) + totalWinnings);
+                        showToast(` আপনি ৳${totalWinnings.toFixed(2)} জিতেছেন!`, 'success');
+                    } else if (totalLoss > 0) {
+                         showToast(`আপনি ৳${totalLoss.toFixed(2)} হেরেছেন।`, 'error');
+                    }
+                }
+                
+                setTimeout(() => {
+                    updateWingoHistoryDisplay(resultNumber);
+                    showWingoResult(resultNumber);
+                    startNewWingoRound();
+                }, 4000);
+            });
+        };
+
+
+        const showWingoBetModal = (betType) => {
+            if (parseInt(document.getElementById('wingo-countdown').textContent.split(':')[1]) <= 3) {
+                return showToast('এই রাউন্ডের জন্য বেটিং বন্ধ।', 'error');
+            }
+            currentWingoBet.type = betType;
+            document.getElementById('wingo-bet-modal-title').textContent = `Bet on ${betType}`;
+            document.getElementById('wingo-bet-amount-input').value = '';
+            showModal('wingo-bet-modal');
+        };
+
+       const placeWingoBet = () => {
+            const placeBetBtn = document.getElementById('place-bet-btn');
+            const amountInput = document.getElementById('wingo-bet-amount-input');
+            const amount = parseFloat(amountInput.value);
+            const betType = currentWingoBet.type;
+            const periodId = currentWingoPeriodId;
+            const user = auth.currentUser;
+
+            if (!user) return showToast('দয়া করে প্রথমে লগইন করুন', 'error');
+            if (isNaN(amount) || amount <= 0) return showToast('সঠিক পরিমাণ লিখুন', 'error');
+            if (amount < 1 || amount > 50000) return showToast('বেটের পরিমাণ ৳1 থেকে ৳50,000 এর মধ্যে হতে হবে', 'error');
+            if (amount > currentUserData.balance) return showToast('অপর্যাপ্ত ব্যালেন্স', 'error');
+
+            if (parseInt(document.getElementById('wingo-countdown').textContent.split(':')[1]) <= 3) {
+                hideModal('wingo-bet-modal');
+                return showToast('এই রাউন্ডের জন্য বেটিং বন্ধ।', 'error');
+            }
+
+            placeBetBtn.disabled = true;
+            placeBetBtn.textContent = 'Placing...';
+
+            const betRef = database.ref(`wingo_bets/${user.uid}/${periodId}`).push();
+
+            database.ref(`users/${user.uid}`).transaction(userData => {
+                if (userData && userData.balance >= amount) {
+                    userData.balance -= amount;
+                    return userData;
+                }
+                return;
+            }).then(result => {
+                if (!result.committed) {
+                    hideModal('wingo-bet-modal');
+                    showToast('লেনদেন ব্যর্থ হয়েছে। আপনার ব্যালেন্স চেক করুন।', 'error');
+                    placeBetBtn.disabled = false;
+                    placeBetBtn.textContent = 'PLACE BET';
+                    return;
+                }
+
+                betRef.set({
+                    amount: amount,
+                    type: betType,
+                    status: 'placed',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    showToast('বেট সফলভাবে স্থাপন করা হয়েছে!', 'success');
+                    hideModal('wingo-bet-modal');
+                }).catch(err => {
+                    database.ref(`users/${user.uid}/balance`).transaction(balance => (balance || 0) + amount);
+                    showToast('বেট স্থাপন করা যায়নি। আপনার টাকা ফেরত দেওয়া হয়েছে।', 'error');
+                }).finally(() => {
+                    placeBetBtn.disabled = false;
+                    placeBetBtn.textContent = 'PLACE BET';
+                });
+
+            }).catch(err => {
+                showToast(`একটি লেনদেন ত্রুটি ঘটেছে: ${err.message}`, 'error');
+                placeBetBtn.disabled = false;
+                placeBetBtn.textContent = 'PLACE BET';
+            });
+        };
+
+
+    </script>
+</body>
+</html>
